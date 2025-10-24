@@ -9,41 +9,55 @@ import (
 	"github.com/rowsedgy/gokedex/internal/pokecache"
 )
 
+var baseURL string = "https://pokeapi.co/api/v2/location-area/"
+
 var locationCache = pokecache.NewCache(10 * time.Second)
+
+// var pokemonCache = pokecache.NewCache(10 * time.Second)
 
 type Location struct {
 	Name string `json:"name"`
 }
 
-func GetLocationName(id int) string {
+func httpReq(url string) (*http.Response, error) {
+	res, err := http.Get(url)
+	if err != nil {
+		fmt.Println("Request error:", err)
+		return nil, err
+	}
+
+	if res.StatusCode != http.StatusOK {
+		// fmt.Printf("Non OK status code %d", res.StatusCode)
+		res.Body.Close()
+		return nil, fmt.Errorf("WrongStatusCode: %d", res.StatusCode)
+	}
+
+	return res, nil
+}
+
+func GetLocationName(id int) (string, error) {
 	key := fmt.Sprintf("%d", id)
 
 	if val, ok := locationCache.Get(key); ok {
-		// fmt.Println("cache hit")
-		return string(val)
+		return string(val), nil
 	}
 
-	url := fmt.Sprintf("https://pokeapi.co/api/v2/location-area/%d/", id)
+	idURL := fmt.Sprintf("%s%d/", baseURL, id)
 
-	res, err := http.Get(url)
-	if err != nil {
-		fmt.Println("Error:", err)
-		return ""
+	res, err := httpReq(idURL)
+	if res == nil {
+		return "", err
 	}
 
 	defer res.Body.Close()
 
-	if res.StatusCode != http.StatusOK {
-		fmt.Println("HTTP Error:", res.StatusCode)
-		return ""
+	var locationData Location
+	if err := json.NewDecoder(res.Body).Decode(&locationData); err != nil {
+		fmt.Println("Error decoding json", err)
+		return "", nil
 	}
 
-	var data Location
-	if err := json.NewDecoder(res.Body).Decode(&data); err != nil {
-		fmt.Println("JSON decode error:", err)
-		return ""
-	}
+	locationCache.Add(key, []byte(locationData.Name))
+	return locationData.Name, nil
 
-	locationCache.Add(key, []byte(data.Name))
-	return data.Name
 }

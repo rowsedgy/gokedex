@@ -27,6 +27,7 @@ func startRepl(cfg *Config) {
 			err := command.callback(cfg)
 			if err != nil {
 				fmt.Println(err)
+				break
 			}
 			continue
 		} else {
@@ -49,8 +50,12 @@ type cliCommand struct {
 }
 
 type Config struct {
-	Next     []string
-	Previous []string
+	Next            []string
+	Previous        []string
+	Explore         string
+	ID              int
+	Increment       int
+	NoMoreLocations bool
 }
 
 func getCommands() map[string]cliCommand {
@@ -75,5 +80,10 @@ func getCommands() map[string]cliCommand {
 			description: "Displays previous 20 locations. Each use displays the previous 20 locations.",
 			callback:    commandMapb,
 		},
+		// "explore": {
+		// 	name:        "explore",
+		// 	description: "Lists pokemon found in area",
+		// 	callback:    commandExplore,
+		// },
 	}
 }
