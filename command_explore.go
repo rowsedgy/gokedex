@@ -1,25 +1,21 @@
 package main
 
 import (
-	"time"
+	"fmt"
 
-	"github.com/rowsedgy/gokedex/internal/pokecache"
+	"github.com/rowsedgy/gokedex/internal/pokeapi"
 )
 
-var exploreCache = pokecache.NewCache(10 * time.Second)
+func commandExplore(cfg *Config, areaToExplore string) error {
+	pokemonsInArea, err := pokeapi.GetPokemonNames(areaToExplore)
+	if err != nil {
+		fmt.Println("Error getting pokemons in area: ", err)
+		return err
+	}
 
-type LocationArea struct {
-	PokemonEncounters []PokemonEncounter `json:"pokemon_encounters"`
+	fmt.Printf("Exploring %s...\n", areaToExplore)
+	for _, pkmn := range pokemonsInArea {
+		fmt.Printf("- %s\n", pkmn)
+	}
+	return nil
 }
-
-type PokemonEncounter struct {
-	Pokemon Pokemon `json:"pokemon"`
-}
-
-type Pokemon struct {
-	Name string `json:"name"`
-}
-
-// func commandExplore(cfg *Config) error {
-
-// }

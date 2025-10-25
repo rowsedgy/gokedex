@@ -6,7 +6,7 @@ import (
 	"github.com/rowsedgy/gokedex/internal/pokeapi"
 )
 
-func commandMap(cfg *Config) error {
+func commandMap(cfg *Config, explore string) error {
 	if cfg.NoMoreLocations {
 		fmt.Println("No more locations!")
 		return nil
@@ -41,7 +41,7 @@ func commandMap(cfg *Config) error {
 	return nil
 }
 
-func commandMapb(cfg *Config) error {
+func commandMapb(cfg *Config, explore string) error {
 	if cfg.ID <= 1 {
 		fmt.Println("you're on the first page")
 		return nil
